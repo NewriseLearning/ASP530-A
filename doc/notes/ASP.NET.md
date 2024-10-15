@@ -1,0 +1,4 @@
+- ASP.NET WebControls/WebService (.NET Framework)
+- ASP.NET MVC 1.0-4.0/Web API (.NET Framework)
+- ASP.NET MVC 5.0/AJAX/Web API/Razor Pages (.NET Core/.NET)
+- ASP.NET Blazor (Server/WebAssembly/Auto) (.NET Core/.NET)

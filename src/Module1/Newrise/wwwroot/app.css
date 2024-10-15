@@ -1,0 +1,11 @@
+﻿fieldset {
+	background-color:aqua;
+}
+
+fieldset > legend {
+	color : red;
+	font-weight : bold;
+}
+
+body {
+}

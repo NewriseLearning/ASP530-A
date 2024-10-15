@@ -1,0 +1,25 @@
+﻿@page "/timezone/{id?}"
+<fieldset>
+	<legend><strong>Server Time</strong></legend>
+	<div>Time Zone: <i>@Id</i></div>
+	<div>Time: <i>@Time</i></div>
+</fieldset>
+
+@code {
+	[Parameter]
+	public string Id { get; set; }
+	public DateTime Time { get; set; }
+
+	protected override void OnParametersSet() {
+		try {
+			Id = Id.Replace("_", " ");
+			var zone = TimeZoneInfo.FindSystemTimeZoneById(Id);
+			Time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zone);
+		}
+		catch (Exception) {
+			Id = "Universal";
+			Time = DateTime.UtcNow;
+		}
+	}
+
+}

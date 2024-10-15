@@ -1,0 +1,11 @@
+﻿fieldset {
+	background-color: beige;
+}
+
+	fieldset > legend {
+		color: darkgray;
+		font-style: italic;
+	}
+
+body {
+}
