@@ -1,0 +1,20 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<MudText Typo=@Typo.h3>@Message</MudText>
+
+<MudButton Variant=@Variant.Filled Color=@Color.Primary
+	OnClick=@UpdateMessage>
+	Click Me
+</MudButton>
+
+Welcome to your new app.
+@code {
+		string Message { get; set; } = string.Empty;
+
+		void UpdateMessage() {
+			Message = "Hello, MudBlazor!";
+		}
+
+}

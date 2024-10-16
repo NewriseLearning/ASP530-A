@@ -1,0 +1,32 @@
+﻿@page "/contacts"
+@inherits MyComponentBase
+<MudGrid>
+	@foreach (var office in offices) {
+		<MudItem xs="12" md="6" xl="3" xxl="2">
+			<MudPaper Class="pa-8 ma-2">
+				<MudText Typo="Typo.h5" Align="Align.Center">
+					<b>@office.Id</b>
+				</MudText>
+				<br />
+				<MudText Typo="Typo.overline">Address</MudText>
+				<MudText Typo="Typo.body1">@office.Address1</MudText>
+				<MudText Typo="Typo.body1">@office.Address2</MudText>
+				<MudText Typo="Typo.body1">@office.Address3</MudText>
+				<br />
+				<MudText Typo="Typo.overline">Contact</MudText>
+				<MudText Typo="Typo.body1">
+					<MudIcon Icon=@Icons.Material.Filled.Email />
+					<span class=@c1>@office.Email</span>
+				</MudText>
+				<MudText Typo="Typo.body1">
+					<MudIcon Icon=@Icons.Material.Filled.Phone />
+					<span class=@c1>@office.Tel</span>
+				</MudText>
+				<MudText Typo="Typo.body1">
+					<MudIcon Icon=@Icons.Material.Filled.Smartphone />
+					<span class=@c1>@office.Mobile</span>
+				</MudText>
+			</MudPaper>
+		</MudItem>		
+	}
+</MudGrid>

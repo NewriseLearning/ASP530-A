@@ -1,0 +1,42 @@
+﻿@inherits LayoutComponentBase
+<MudThemeProvider />
+<MudLayout>
+    <MudAppBar Dense="true" Elevation="0">
+        <MudIconButton Icon=@Icons.Material.Filled.Menu 
+            Color="Color.Inherit" OnClick="()=>{sideBarOpened=!sideBarOpened;}" />
+        <MudSpacer />
+        <MudText Typo="Typo.h5">Newrise</MudText>
+        <MudSpacer />
+        <MudIconButton Icon=@Icons.Material.Filled.MoreVert
+            Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudDrawer Variant="DrawerVariant.Temporary" OverlayAutoClose="true" @bind-Open=@sideBarOpened Elevation="1" ClipMode="DrawerClipMode.Always">
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
+            <MudNavLink Href="/events">Events</MudNavLink>
+            <MudNavLink Href="/contacts">Contacts</MudNavLink>
+            <MudNavGroup Title="MudBlazor" Expanded="false">
+                <MudNavLink Target="_blank" Href="https://mudblazor.com/">Home</MudNavLink>
+                <MudNavLink Target="_blank" Href="https://mudblazor.com/features/icons#icons">Icons</MudNavLink>
+                <MudNavLink Target="_blank" Href="https://mudblazor.com/features/colors#theme-palette-colors">Colors</MudNavLink>
+                <MudNavLink Target="_blank" Href="https://mudblazor.com/features/breakpoints#breakpoints">Breakpoints</MudNavLink>
+            </MudNavGroup>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>@Body</MudMainContent>
+    <MudAppBar Bottom="true" Dense="true" Color="Color.Secondary"></MudAppBar>
+</MudLayout>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    bool sideBarOpened { get; set; } = true;
+
+    // void ToggleSideBar() {
+    //     sideBarOpened = !sideBarOpened;
+    // }
+}
