@@ -1,11 +1,19 @@
+using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using Newrise.Components;
+using Newrise.Models;
 using Newrise.Services;
 
 namespace Newrise {
 	public class Program {
 		public static void Main(string[] args) {
 			var builder = WebApplication.CreateBuilder(args);
+
+			var connectionString = builder.Configuration.GetConnectionString("NewriseDb");
+			builder.Services.AddDbContextFactory<NewriseDbContext>(
+				options => options.UseSqlServer(connectionString));
+
+			builder.Services.AddSingleton<EventDataService>();
 
 			builder.Services.AddMemoryCache();
 
