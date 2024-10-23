@@ -1,0 +1,88 @@
+﻿@page "/user/login"
+@using Newrise.Validators
+@using System.ComponentModel.DataAnnotations
+@inject ParticipantDataService ParticipantDataService
+@inject NavigationManager Navigation
+
+@if (LoggingIn) {
+	<MudAlert Severity="Severity.Info">
+		Attempting to login. Please wait...
+	</MudAlert>
+}
+else {
+	<MudForm @bind-IsValid=IsValid>
+		<MudGrid>
+			<MudItem xs="12">
+				<MudCard Class="pa-8 ma-2">
+					<MudCardHeader>
+						<MudText Typo="Typo.h5">LOGIN</MudText>
+					</MudCardHeader>
+					<MudCardContent>
+						<MudTextField T="string" Label="EMAIL"
+								InputType="InputType.Email"
+								Required="true" Immediate
+								RequiredError="User ID or email required."
+								Validation=@(new Func<string,string>(IsValidUserId))
+								@bind-Value="UserId" /><br />
+						<MudStack Row="true">
+							<MudTextField T="string" Label="PASSWORD"
+								InputType="InputType.Password"
+								Required="true" Immediate
+								RequiredError="Password required."
+								Validation=@(new PasswordAttribute())
+								For=@(()=>Password)
+								@bind-Value="Password" />
+						</MudStack><br />
+						<PasswordRules /><br />
+						@if (Error != string.Empty) {
+							<MudAlert Severity="Severity.Error">@Error</MudAlert>
+						}
+					</MudCardContent>
+					<MudCardActions>
+						<MudButton Variant="Variant.Filled"
+									Disabled=@(!IsValid)
+								   Color="Color.Primary" Class="ml-auto"
+								   OnClick="LoginAsync">LOGIN</MudButton>
+					</MudCardActions>
+				</MudCard>
+			</MudItem>
+		</MudGrid>
+	</MudForm>
+}
+@code {
+	//	LoginModel Item { get; set; } = new();
+	bool IsValid { get; set; }
+	string UserId { get; set; } = string.Empty;
+	string Password { get; set; } = string.Empty;
+	string Error { get; set; } = string.Empty;
+	bool LoggingIn { get; set; } = false;
+
+	EmailAddressAttribute EmailValidator = new();
+
+	string IsValidUserId(string value) {
+		if (!value.Contains('@') ||
+			EmailValidator.IsValid(value)) return null;
+		return EmailValidator.FormatErrorMessage("User ID/Email");
+	}
+
+
+	async Task LoginAsync() {
+		try {
+			LoggingIn = true;
+			Error = string.Empty;
+		//	if (string.IsNullOrEmpty(UserId)) throw new Exception("Email/Id cannot be empty.");
+		//	if (string.IsNullOrEmpty(Password)) throw new Exception("Password is required.");
+			await ParticipantDataService.SignInAsync(UserId, Password);
+			Navigation.NavigateTo("/");
+		}
+		catch (Exception ex) {
+			Error = $"Login failed. {ex.Message}";
+		}
+		finally {
+			LoggingIn = false;
+		}
+	}
+	protected override async Task OnInitializedAsync() {
+		await ParticipantDataService.InitializeAsync();
+	}
+}

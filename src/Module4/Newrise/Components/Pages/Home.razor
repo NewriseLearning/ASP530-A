@@ -1,0 +1,33 @@
+﻿@page "/"
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Home</PageTitle>
+
+<MudText Typo=@Typo.h3>@Message</MudText>
+
+<MudButton Variant=@Variant.Filled Color=@Color.Primary
+	OnClick=@UpdateMessage>
+	Click Me
+</MudButton>
+
+Welcome to your new app.
+@code {
+	string Message { get; set; } = string.Empty;
+
+	void UpdateMessage() {
+		Message = "Hello, MudBlazor!";
+	}
+
+	protected override async Task OnInitializedAsync() {
+		var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var isAuthenticated = state.User.Identity.IsAuthenticated;
+		if (isAuthenticated)
+		{
+			var isAdmin = state.User.IsInRole("Administrators");
+			var username = isAdmin ? "Administrator" : state.User.Identity.Name;
+			string email = state.User.FindFirst(ClaimTypes.Email)?.Value;
+			Message = $"Welcome back {username}! {email}";
+		}	else Message = "Hello there!";
+	}
+}

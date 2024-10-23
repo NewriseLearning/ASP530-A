@@ -1,0 +1,10 @@
+﻿<AuthorizeView>
+    <NotAuthorized>
+        <MudLink Href="/user/login" Color="Color.Inherit">Login</MudLink>
+        <MudLink Class="ml-2" Href="/user/register" Color="Color.Inherit">Register</MudLink>
+    </NotAuthorized>
+    <Authorized>
+        <MudLink Href="/user/profile" Color="Color.Inherit">
+            @context.User.Identity.Name</MudLink>
+    </Authorized>
+</AuthorizeView>
