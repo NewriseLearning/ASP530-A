@@ -1,0 +1,55 @@
+﻿@page "/js2"
+@inject IJSRuntime JS
+@implements IDisposable
+@implements IAsyncDisposable
+
+<MudGrid Class="pa-8">
+	<MudItem>
+		<button id="btn1">Set Message</button>
+		<MudText>Message:@Message</MudText>
+	</MudItem>
+</MudGrid>
+
+<script>
+	var instance = null;
+
+	function set_message() {
+		instance.invokeMethodAsync("SetMessage", "Hello from Javascript!");
+		alert("message sent!");
+	}
+
+	function set_instance(obj) {
+		instance = obj;
+		const button1 = document.getElementById("btn1");
+		button1.addEventListener("click", set_message);
+		alert("instance set!");
+	}
+
+</script>
+
+@code {
+	public string Message { get; set; }
+
+	[JSInvokable]
+	public void SetMessage(string text) {
+		Message = text; StateHasChanged();
+	}
+
+	DotNetObjectReference<TestJS2> this_obj;
+
+	protected override void OnAfterRender(bool firstRender) {
+		if (firstRender) {
+			this_obj = DotNetObjectReference.Create(this);
+			JS.InvokeVoidAsync("set_instance", this_obj);
+		}
+	}
+
+	public ValueTask DisposeAsync() {
+		Task task = new Task(() => { if (this_obj != null) this_obj.Dispose(); });
+		task.Start(); return new ValueTask(task);
+	}
+
+	public void Dispose() {
+		if (this_obj != null) this_obj.Dispose();
+	}
+}

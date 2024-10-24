@@ -1,0 +1,76 @@
+﻿@inject ISnackbar Snackbar
+<MudCard>
+	<MudCardContent>
+		@if (ImageFile != null) {
+			<MudImage Class="ma-auto" Height="640" Fluid Src=@ImageText />
+		}
+		else {
+			<MudSkeleton SkeletonType=@SkeletonType.Rectangle Height="220px" />
+		}
+		@if (Error != string.Empty) {
+			<br />
+			<MudAlert Severity="Severity.Error">@Error</MudAlert>
+		}
+	</MudCardContent>
+	<MudCardActions>
+		<MudStack Row="true">
+			<MudFileUpload @ref="Uploader"  T="IBrowserFile" FilesChanged="UploadFileAsync">
+				<ActivatorContent>
+					<MudButton Class="ma-2"
+							   Variant="Variant.Filled" Color="Color.Primary">
+						SELECT PROFILE IMAGE
+					</MudButton>
+				</ActivatorContent>
+			</MudFileUpload>
+			@if (ImageFile != null) {
+				<MudButton Variant=@Variant.Filled
+				   Color=@Color.Primary Class="ma-2"
+				   OnClick=@SaveImage>SAVE IMAGE</MudButton>
+			}
+		</MudStack>
+	</MudCardActions>
+</MudCard>
+@code {
+	string Error { get; set; } = string.Empty;
+
+	MudFileUpload<IBrowserFile> Uploader;
+
+	[Parameter]
+	public Action<byte[]> OnSaveImage { get; set; }
+
+	IBrowserFile ImageFile { get; set; }
+	byte[] ImageData { get; set; }
+	string ImageText { get; set; }
+
+	async void UploadFileAsync(IBrowserFile file) {
+		try
+		{
+			Error = string.Empty;
+			if (file == null) return;
+			if (file.ContentType != "image/png") throw new Exception("Image file must be PNG format.");
+			if (file.Size > 1000000) throw new Exception("Image size cannot exceed 1MB");
+			Snackbar.Add($"File selected:{file.Name}", Severity.Info);
+			ImageFile = await file.RequestImageFileAsync("image/png", 640, 640);
+			var buffer = new MemoryStream();
+			await ImageFile.OpenReadStream().CopyToAsync(buffer);
+			ImageData = buffer.ToArray(); buffer.Close();
+			ImageText = $"data:image/png;base64, {Convert.ToBase64String(ImageData)}";
+			StateHasChanged();
+		}
+		catch (Exception ex) {
+			Error = $"File upload failed. {ex.Message}";
+		}
+	}
+
+	void ClearImage() {
+		ImageText = null;
+		ImageData = null;
+		ImageFile = null;
+		Uploader.ClearAsync();
+	}
+
+	void SaveImage() {
+		OnSaveImage?.Invoke(ImageData);
+		ClearImage();
+	}
+}

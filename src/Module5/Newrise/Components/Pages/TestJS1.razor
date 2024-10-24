@@ -1,0 +1,21 @@
+﻿@page "/js1"
+@inject IJSRuntime JS
+<MudGrid Class="pa-8">
+	<MudItem>
+		<MudButton OnClick="ShowAlertAsync">Show Alert</MudButton>
+		<MudText class="pt-4">Result:@Result</MudText>
+	</MudItem>
+</MudGrid>
+<script>
+	function show_alert(message) {
+		alert(message); return true;
+	}
+</script>
+@code {
+	bool Result;
+	async void ShowAlertAsync() {
+		Result = await JS.InvokeAsync<bool>("show_alert", new object[] {
+			"Hello from Blazor!" });
+		StateHasChanged();
+	}
+}

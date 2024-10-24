@@ -1,0 +1,82 @@
+﻿@page "/user/profile"
+@attribute [Authorize]
+@inject IDialogService DialogService
+@inject ParticipantDataService ParticipantDataService
+@inject EventDataService EventDataService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+@if (Item != null)
+{
+	<MudTabs @bind-ActivePanelIndex=@CurrentPanel>
+		<MudTabPanel Text="USER DETAILS">
+			<UserDetails Item="Item" OnLogout="LogoutAsync"
+			OnSaveImage="SaveImageAsync" />
+		</MudTabPanel>
+		<MudTabPanel Text="IMAGE PROFILE">
+			<ProfileImageUpload OnSaveImage="SaveImageAsync" />
+		</MudTabPanel>
+		<MudTabPanel Text="EVENTS">
+			<EventList Items="Item.Events"
+			OnLeaveEvent="LeaveEventAsync"
+			OnLeaveEvent2="LeaveEventAsync2" />
+		</MudTabPanel>
+	</MudTabs>
+}
+else {
+	<MudAlert Severity="Severity.Info">Loading profile. Please wait...</MudAlert>
+}
+
+@code {
+
+	int CurrentPanel { get; set; }
+
+	Participant Item { get; set; }
+
+	protected override async Task OnInitializedAsync() {
+		Item = await ParticipantDataService.GetCurrentParticipantWithEventsAsync();
+	}
+
+	async void LogoutAsync() {
+		await ParticipantDataService.SignOutAsync();
+		Navigation.NavigateTo("/");
+	}
+
+	async void LeaveEventAsync(Event eventItem) {
+		try {
+			bool? result = await DialogService.ShowMessageBox(
+					"Warning", $"Do you wish to leave event '{eventItem.Id}'?");
+			if (result != true) return;
+			await EventDataService.RemoveParticipantAsync(eventItem.Id, Item.Id);
+			Item = await ParticipantDataService.GetParticipantWithEventsAsync(Item.Id);
+			StateHasChanged();
+		}
+		catch (Exception) {
+			Snackbar.Add($"Error leaving event '{eventItem.Id}'.", Severity.Error);
+		}
+	}
+
+	async Task LeaveEventAsync2(Event eventItem) {
+		try {
+			await EventDataService.RemoveParticipantAsync(eventItem.Id, Item.Id);
+			Item = await ParticipantDataService.GetParticipantWithEventsAsync(Item.Id);
+			StateHasChanged();
+		}
+		catch (Exception) {
+			Snackbar.Add($"Error leaving event '{eventItem.Id}'.", Severity.Error);
+		}
+	}
+
+	async void SaveImageAsync(byte[] image) {
+		try {
+			await ParticipantDataService.UpdatePhotoAsync(Item.Id, image);
+			Item = await ParticipantDataService.GetParticipantWithEventsAsync(Item.Id);
+			Snackbar.Add("Profile image updated.", Severity.Success);
+			CurrentPanel = 0;
+			StateHasChanged();
+		}
+		catch (Exception) {
+			Snackbar.Add("Error saving profile image.", Severity.Error);
+		}
+	}
+}

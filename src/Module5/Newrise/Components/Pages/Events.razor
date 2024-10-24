@@ -1,5 +1,6 @@
 ﻿@page "/events"
 @inject EventDataService DataService
+@inject ProtectedSessionStorage SessionStore
 @inject IDialogService DialogService
 
 <MudGrid Class="ma-8">
@@ -65,7 +66,17 @@
 </MudGrid>
 @code {
 	List<Event> Items { get; set; }
-	string SearchText { get; set; } = string.Empty;
+
+	string _searchText = string.Empty;
+
+	string SearchText {
+		get {
+			return _searchText;
+		}
+		set {
+			SessionStore.SetAsync("Events.SearchText", _searchText = value);
+		}
+	}
 
 	void ShowDetails(Event item) {
 		var options = new DialogOptions
@@ -88,7 +99,9 @@
 	}
 
 	protected override async Task OnInitializedAsync() {
-	//	await Task.Delay(4000);
+		//	await Task.Delay(4000);
+		var result = await SessionStore.GetAsync<string>("Events.SearchText");
+		if (result.Success) _searchText = result.Value;
 		Items = await DataService.GetEventsAsync();
 	}
 }

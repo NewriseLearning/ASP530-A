@@ -1,0 +1,96 @@
+﻿@inject IDialogService DialogService;
+<MudGrid>
+	<MudItem xs="12" md="8">
+		<MudTable Items=@Items T="Event" @bind-SelectedItem=@Item
+			@bind-SelectedItems=@SelectedItems
+			MultiSelection="true"
+			SelectOnRowClick="true" RowClassFunc="GetRowClass">
+			<NoRecordsContent>
+				<MudAlert Class="ma-4" Severity=@Severity.Info>
+					You have not participated in any scheduled events.
+					Click <MudLink Href="/events">here</MudLink> to
+					view the scheduled events.
+				</MudAlert>
+			</NoRecordsContent>
+			<ToolBarContent>
+				@if (SelectedItems.Count > 0) {
+					<MudButton Color="Color.Primary"
+					Variant="Variant.Filled"
+					OnClick=@LeaveSelectedEvents>
+					LEAVE EVENTS
+				</MudButton>
+				}
+			</ToolBarContent>
+			<HeaderContent>
+				<MudTh>
+					<MudTableSortLabel SortBy=@(new Func<Event,object>(e => e.From))>
+						Date
+					</MudTableSortLabel>
+				</MudTh>
+				<MudTh>ID</MudTh>
+				<MudTh>Title</MudTh>
+				<MudTh></MudTh>
+			</HeaderContent>
+			<RowTemplate>
+				<MudTd>@context.From</MudTd>
+				<MudTd>@context.Id</MudTd>
+				<MudTd>@context.Title</MudTd>
+				<MudTd>
+					<MudIconButton Icon=@Icons.Material.Rounded.Delete
+								   OnClick=@(()=>OnLeaveEvent?.Invoke(context)) />
+				</MudTd>
+			</RowTemplate>
+		</MudTable>
+	</MudItem>
+	@if (Item != null) {
+		<MudItem xs="12" md="4">
+			<MudCard>
+				<MudCardContent>
+					<MudTextField Label="ID" Value=@Item.Id ReadOnly />
+					<MudTextField Label="TITLE" Value=@Item.Title ReadOnly />
+				</MudCardContent>
+				<MudCardActions>
+					<MudButton Color=@Color.Primary Variant=@Variant.Filled
+							   OnClick=@(()=>OnLeaveEvent?.Invoke(Item))>
+						LEAVE EVENT
+					</MudButton>
+				</MudCardActions>
+			</MudCard>
+		</MudItem>
+	}
+</MudGrid>
+
+@code {
+	HashSet<Event> SelectedItems { get; set; } = new();
+
+	Event Item { get; set; }
+
+	async void LeaveSelectedEvents() {
+		bool? result = await DialogService.ShowMessageBox(
+		"Warning", $"Do you wish to leave {SelectedItems.Count} event(s)?");
+		if (result != true) return;
+		if (OnLeaveEvent != null) {
+			foreach (var item in SelectedItems)
+				OnLeaveEvent(item);
+		}
+		StateHasChanged();
+	}
+
+	void RowSelected(TableRowClickEventArgs<Event> e) {
+		Item = e.Item;
+	}
+
+	string GetRowClass(Event item, int row) {
+		if (Item == item) return "selected";
+		return string.Empty;
+	}
+
+	[Parameter]
+	public IEnumerable<Event> Items { get; set; }
+
+	[Parameter]
+	public Action<Event> OnLeaveEvent { get; set; }
+
+	[Parameter]
+	public Func<Event, Task> OnLeaveEvent2 { get; set; }
+}
